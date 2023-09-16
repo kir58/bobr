@@ -61,7 +61,8 @@ export const Main = () => {
 
   return (
     <div className="wrapper">
-      <div>Привет Папаша! А нука скажи что нибудь по польски.</div>
+      <div>Привет Папаша! А нука скажи что-нибудь по польски.</div>
+      <div>Пример: "kurwa bóbr"</div>
       <div className="player-wrapper">
         <ReactPlayer
           className="react-player"
