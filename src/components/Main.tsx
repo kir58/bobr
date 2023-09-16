@@ -11,7 +11,7 @@ export const Main = () => {
   const [audioUrl, setAudioUrl] = useState('');
   const [videoSeconds, setVideoSeconds] = useState(0);
 
-  const playerRef = useRef<ReactPlayer | null | any>(null);
+  const playerRef = useRef<ReactPlayer | null>(null);
 
   useEffect(() => {
     if (!audioUrl) return;
@@ -61,6 +61,7 @@ export const Main = () => {
 
   return (
     <div className="wrapper">
+      <div>Привет Папаша! А нука скажи что нибудь по польски.</div>
       <div className="player-wrapper">
         <ReactPlayer
           className="react-player"
