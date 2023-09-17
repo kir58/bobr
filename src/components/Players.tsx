@@ -66,6 +66,7 @@ export const Players = ({ videoUrl }: Props) => {
     recorderControls.togglePauseResume();
     setIsPlay(recorderControls.isPaused);
   };
+
   return (
     <Stack gap={2} marginTop={5}>
       <Stack
@@ -104,8 +105,9 @@ export const Players = ({ videoUrl }: Props) => {
           src={audioUrl ?? ''}
           controls
           onPlay={() => {
-            playerRef.current?.seekTo(0);
             setIsPlay(true);
+            playerRef.current?.seekTo(0);
+            console.log(playerRef.current);
           }}
         />
       </Stack>
