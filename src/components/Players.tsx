@@ -107,7 +107,6 @@ export const Players = ({ videoUrl }: Props) => {
           onPlay={() => {
             setIsPlay(true);
             playerRef.current?.seekTo(0);
-            console.log(playerRef.current);
           }}
         />
       </Stack>
