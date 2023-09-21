@@ -29,8 +29,7 @@ export const Players = ({ videoUrl }: Props) => {
     }
   }, [isPlay, audioUrl, videoSeconds]);
 
-  const recorderControls = useAudioRecorder();
-
+  const recorderControls = useAudioRecorder({ echoCancellation: false });
   if (!videoUrl) {
     return null;
   }
