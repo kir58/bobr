@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
-import ReactPlayer from 'react-player/lazy';
-import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
-import { getBlobDuration } from '../utils/getBloblDuration';
-import { Button, Stack } from '@mui/material';
-import { Player } from './common/Player/Player';
+import { useState, useEffect, useRef } from "react";
+import ReactPlayer from "react-player/lazy";
+import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
+import { getBlobDuration } from "../utils/getBloblDuration";
+import { Button, Stack } from "@mui/material";
+import { Player } from "./common/Player/Player";
 
 type Props = {
   videoUrl?: string;
@@ -12,7 +12,7 @@ type Props = {
 export const Players = ({ videoUrl }: Props) => {
   const [isPlay, setIsPlay] = useState(false);
   const [isRecord, setIsRecord] = useState(false);
-  const [audioUrl, setAudioUrl] = useState('');
+  const [audioUrl, setAudioUrl] = useState("");
   const [videoSeconds, setVideoSeconds] = useState(0);
 
   const playerRef = useRef<ReactPlayer | null>(null);
@@ -30,6 +30,7 @@ export const Players = ({ videoUrl }: Props) => {
   }, [isPlay, audioUrl, videoSeconds]);
 
   const recorderControls = useAudioRecorder({ echoCancellation: false });
+
   if (!videoUrl) {
     return null;
   }
@@ -44,7 +45,7 @@ export const Players = ({ videoUrl }: Props) => {
     setIsPlay(false);
     setIsRecord(false);
     playerRef.current?.seekTo(0);
-    setAudioUrl('');
+    setAudioUrl("");
     setVideoSeconds(0);
   };
 
@@ -66,6 +67,7 @@ export const Players = ({ videoUrl }: Props) => {
     setIsPlay(recorderControls.isPaused);
   };
 
+  console.log(Player);
   return (
     <Stack gap={2} marginTop={5}>
       <Stack
@@ -96,12 +98,17 @@ export const Players = ({ videoUrl }: Props) => {
         }}
       />
       <Stack gap={2} direction="row">
-        <Button variant="outlined" color="error" disabled={!audioUrl} onClick={handleReset}>
+        <Button
+          variant="outlined"
+          color="error"
+          disabled={!audioUrl}
+          onClick={handleReset}
+        >
           reset record
         </Button>
         <audio
           controlsList="nodownload"
-          src={audioUrl ?? ''}
+          src={audioUrl ?? ""}
           controls
           onPlay={() => {
             setIsPlay(true);
