@@ -13,11 +13,12 @@ import {
   Tooltip,
   MenuItem,
 } from '@mui/material';
+import { signIn, signUp } from '../constants/routes';
 
 const pages: string[] = [];
 const settings: { url: string; label: string }[] = [
-  { url: 'sign-in', label: 'Sign in' },
-  { url: 'sign-up', label: 'Sign up' },
+  { url: signIn, label: 'Sign in' },
+  { url: signUp, label: 'Sign up' },
 ];
 
 export const Header = () => {

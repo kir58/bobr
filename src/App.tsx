@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { Container } from '@mui/material';
 import { SignIn } from './components/SignIn';
 import { SignUp } from './components/SignUp';
+import { signIn, signUp } from './constants/routes';
 
 function App() {
   return (
@@ -13,8 +14,8 @@ function App() {
         <Container maxWidth="xl">
           <Routes>
             <Route path="/" element={<Main />} />
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/sign-up" element={<SignUp />} />
+            <Route path={signIn} element={<SignIn />} />
+            <Route path={signUp} element={<SignUp />} />
           </Routes>
         </Container>
       </Router>
