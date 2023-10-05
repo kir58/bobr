@@ -5,7 +5,7 @@ export const Copyright = (props: any) => {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://bobr.surge.sh/">
+      <Link color="inherit" href="/">
         je bobr kurwa
       </Link>{' '}
       {new Date().getFullYear()}
