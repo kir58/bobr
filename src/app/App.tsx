@@ -1,10 +1,9 @@
-import { Main } from './components/Main';
+import { Main } from '../pages/main';
 import { HashRouter as Router, Route, Routes } from 'react-router-dom';
-import { Header } from './components/Header';
+import { Header } from '../shared';
 import { Container } from '@mui/material';
-import { SignIn } from './components/SignIn';
-import { SignUp } from './components/SignUp';
-import { signIn, signUp } from './constants/routes';
+import { SignIn } from '../pages/signIn';
+import { SignUp } from '../pages/signUp';
 
 function App() {
   return (
@@ -14,8 +13,8 @@ function App() {
         <Container maxWidth="xl">
           <Routes>
             <Route path="/" element={<Main />} />
-            <Route path={signIn} element={<SignIn />} />
-            <Route path={signUp} element={<SignUp />} />
+            <Route path="/sign-in" element={<SignIn />} />
+            <Route path="/sign-up" element={<SignUp />} />
           </Routes>
         </Container>
       </Router>
