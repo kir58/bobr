@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import ReactPlayer from "react-player/lazy";
 import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
-import { getBlobDuration } from "../utils/getBloblDuration";
+import { getBlobDuration } from "../../lib/getBloblDuration.ts";
 import { Button, Stack } from "@mui/material";
-import { Player } from "./common/Player/Player";
+import { Player } from "./Player/Player.tsx";
 
 type Props = {
   videoUrl?: string;
@@ -67,7 +67,7 @@ export const Players = ({ videoUrl }: Props) => {
     setIsPlay(recorderControls.isPaused);
   };
 
-  console.log(Player);
+
   return (
     <Stack gap={2} marginTop={5}>
       <Stack

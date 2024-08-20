@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from './common/Link';
+import { Link } from './Link.tsx';
 import {
   Button,
   AppBar,
@@ -13,12 +13,11 @@ import {
   Tooltip,
   MenuItem,
 } from '@mui/material';
-import { signIn, signUp } from '../constants/routes';
 
 const pages: string[] = [];
 const settings: { url: string; label: string }[] = [
-  { url: signIn, label: 'Sign in' },
-  { url: signUp, label: 'Sign up' },
+  { url: '/sign-in', label: 'Sign in' },
+  { url: '/sign-up', label: 'Sign up' },
 ];
 
 export const Header = () => {

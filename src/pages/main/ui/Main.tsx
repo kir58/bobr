@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Stack, TextField } from '@mui/material';
-import { Players } from './Players';
+import { Players } from '../../../shared/ui';
 const defaultVideoUrl = 'https://www.youtube.com/watch?v=Rm2KZLY-nTs';
 
 export const Main = () => {
