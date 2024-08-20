@@ -1,6 +1,6 @@
 import { Main } from '../pages/main';
 import { HashRouter as Router, Route, Routes } from 'react-router-dom';
-import { Header } from '../shared';
+import { Header } from '../shared/ui';
 import { Container } from '@mui/material';
 import { SignIn } from '../pages/signIn';
 import { SignUp } from '../pages/signUp';
