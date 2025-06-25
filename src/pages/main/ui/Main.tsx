@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import {  useState } from 'react';
 import { Button, Stack, TextField } from '@mui/material';
 import { Players } from '../../../shared/ui';
-const defaultVideoUrl = 'https://www.youtube.com/watch?v=Rm2KZLY-nTs';
+const defaultVideoUrl = 'https://www.youtube.com/embed/JqU1Qpx-7T4?rel=0&controls=1';
+
 
 export const Main = () => {
   const [searchValue, setSearchValue] = useState(defaultVideoUrl);
