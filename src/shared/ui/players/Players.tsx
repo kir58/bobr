@@ -2,20 +2,33 @@ import { useState, useEffect, useRef } from "react";
 import ReactPlayer from "react-player/lazy";
 import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 import { getBlobDuration } from "../../lib/getBloblDuration.ts";
-import { Button, Stack } from "@mui/material";
+import { Button, Stack, Snackbar, Alert } from '@mui/material';
 import { Player } from "./Player/Player.tsx";
+import { createScene } from '../../api/scenes.ts';
+import { Link } from '../Link.tsx';
 
-type Props = {
+type PlayersProps = {
   videoUrl?: string;
+  defaultAudioUrl?: string;
+  defaultStartTimecode?: number;
+  defaultEndTimecode?: number;
+  defaultTranscript?: string;
 };
 
-export const Players = ({ videoUrl }: Props) => {
+export const Players = ({ videoUrl, defaultAudioUrl = '', defaultStartTimecode = 0, }: PlayersProps) => {
   const [isPlay, setIsPlay] = useState(false);
   const [isRecord, setIsRecord] = useState(false);
-  const [audioUrl, setAudioUrl] = useState("");
-  const [videoSeconds, setVideoSeconds] = useState(0);
+  const [audioUrl, setAudioUrl] = useState(defaultAudioUrl);
+  const [videoSeconds, setVideoSeconds] = useState(defaultStartTimecode);
+  const [sceneId, setSceneId] = useState<string | null>(null);
+  const [recordStartTime, setRecordStartTime] = useState<number | null>(null);
 
   const playerRef = useRef<ReactPlayer | null>(null);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+
 
   useEffect(() => {
     if (!audioUrl) return;
@@ -23,11 +36,11 @@ export const Players = ({ videoUrl }: Props) => {
       getBlobDuration(audioUrl).then((duration) => {
         if (videoSeconds >= duration) {
           setIsPlay(false);
-          setVideoSeconds(0);
+          setVideoSeconds(defaultStartTimecode);
         }
       });
     }
-  }, [isPlay, audioUrl, videoSeconds]);
+  }, [isPlay, audioUrl, videoSeconds, defaultStartTimecode]);
 
   const recorderControls = useAudioRecorder({ echoCancellation: false });
 
@@ -44,16 +57,20 @@ export const Players = ({ videoUrl }: Props) => {
   const handleReset = () => {
     setIsPlay(false);
     setIsRecord(false);
+    setRecordStartTime(null);
     playerRef.current?.seekTo(0);
-    setAudioUrl("");
-    setVideoSeconds(0);
-  };
+    setAudioUrl(defaultAudioUrl);
+    setVideoSeconds(defaultStartTimecode);
+  }
 
   const handleStartRecording = () => {
+    const start = playerRef.current?.getCurrentTime?.() || 0;
+    setRecordStartTime(start);
+
     recorderControls.startRecording();
     setIsPlay(true);
     setIsRecord(true);
-    playerRef.current?.seekTo(0);
+    playerRef.current?.seekTo(start);
   };
 
   const handleStopRecording = () => {
@@ -67,6 +84,45 @@ export const Players = ({ videoUrl }: Props) => {
     setIsPlay(recorderControls.isPaused);
   };
 
+  const handleSave = async () => {
+    if (!recorderControls.recordingBlob || recordStartTime === null) {
+      setSnackbarMessage('Нет записи или начального таймкода.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    try {
+      const formData = {
+        youtubeLink: videoUrl ?? '',
+        startTimecode: recordStartTime,
+        endTimecode: recordStartTime + Math.floor(videoSeconds),
+        transcript: '',
+        audioFile: new File(
+          [recorderControls.recordingBlob],
+          'recorded-audio.webm',
+          { type: recorderControls.recordingBlob.type }
+        ),
+      };
+
+      const result = await createScene(formData);
+      setSceneId(result.sceneId);
+
+      setSnackbarMessage('Сцена успешно сохранена!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (err) {
+      setSnackbarMessage('Ошибка при сохранении сцены.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
+
+
+
+
+  const isShowSaveBtn =  !!audioUrl && !sceneId;
 
   return (
     <Stack gap={2} marginTop={5}>
@@ -115,7 +171,21 @@ export const Players = ({ videoUrl }: Props) => {
             playerRef.current?.seekTo(0);
           }}
         />
+        {isShowSaveBtn && <Button onClick={handleSave}>
+          Save
+        </Button>}
+        {sceneId && <Link underline="hover" variant="body2" href={`/scenes/${sceneId}`} >Go to scene</Link>}
       </Stack>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 };

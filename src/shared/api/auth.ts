@@ -1,9 +1,4 @@
-import axios from 'axios';
-
-const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  withCredentials: true, // Обязательно для передачи cookie
-});
+import { API } from './index.ts';
 
 // Типы
 export interface RegisterPayload {
@@ -17,19 +12,18 @@ export interface LoginPayload {
   password: string;
 }
 
-// Регистрация
+
 export const register = async (data: RegisterPayload) => {
   const response = await API.post('/auth/register', data);
   return response.data;
 };
 
-// Логин
 export const login = async (data: LoginPayload) => {
   const response = await API.post('/auth/login', data);
   return response.data;
 };
 
-// Логаут
+
 export const logout = async () => {
   const response = await API.post('/auth/logout');
   return response.data;

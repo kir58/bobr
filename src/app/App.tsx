@@ -6,6 +6,7 @@ import { SignIn } from '../pages/signIn';
 import { SignUp } from '../pages/signUp';
 import { useEffect, useState } from 'react';
 import { getCurrentUser, logout } from '../shared/api/auth.ts';
+import { Scene } from '../pages/scene';
 
 function App() {
   const [user, setUser] = useState<{ username: string } | null>(null);
@@ -36,6 +37,7 @@ function App() {
             <Route path="/" element={<Main />} />
             <Route path="/sign-in" element={<SignIn onLoginSuccess={setUser} />} />
             <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/scenes/:scene_id" element={<Scene />} />
           </Routes>
         </Container>
       </Router>
