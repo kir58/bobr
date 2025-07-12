@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from './Link.tsx';
 import {
-  Button,
   AppBar,
   Box,
   Toolbar,
@@ -14,13 +13,12 @@ import {
   MenuItem,
 } from '@mui/material';
 
-
 const settingsNotAuth = [
   { url: '/sign-in', label: 'Sign in' },
   { url: '/sign-up', label: 'Sign up' },
 ];
 
-export const Header = ({ user, onLogout }: { user: { username: string } | null, onLogout: () => void }) => {
+export const Header = ({ user, onLogout }: { user: { username: string; id: string } | null, onLogout: () => void }) => {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -30,6 +28,11 @@ export const Header = ({ user, onLogout }: { user: { username: string } | null, 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const settingsAuth = [
+    { url: `/user/${user?.id}`, label: 'My Profile' },
+    { action: onLogout, label: 'Logout' },
+  ];
 
   return (
     <AppBar position="static">
@@ -58,18 +61,44 @@ export const Header = ({ user, onLogout }: { user: { username: string } | null, 
           <Box sx={{ flexGrow: 0 }}>
             {user ? (
               <>
-                <Typography sx={{ mr: 2, display: 'inline-block' }}>
-                  Welcome, {user.username}
-                </Typography>
-                <Button
-                  color="inherit"
-                  onClick={() => {
-                    onLogout();
-                    handleCloseUserMenu();
+                <Tooltip title="Open menu">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar alt={user.username} />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: '45px' }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
                   }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
                 >
-                  Logout
-                </Button>
+                  {settingsAuth.map((item) => (
+                    <MenuItem key={item.label} onClick={() => {
+                      handleCloseUserMenu();
+                      if (item.action) item.action();
+                    }}>
+                      {item.url ? (
+                        <Typography textAlign="center">
+                          <Link underline="hover" href={item.url}>
+                            {item.label}
+                          </Link>
+                        </Typography>
+                      ) : (
+                        <Typography textAlign="center">{item.label}</Typography>
+                      )}
+                    </MenuItem>
+                  ))}
+                </Menu>
               </>
             ) : (
               <>

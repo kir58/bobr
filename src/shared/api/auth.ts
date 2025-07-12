@@ -13,6 +13,12 @@ export interface LoginPayload {
 }
 
 
+export type User = {
+  id: string;
+  username: string;
+  email: string;
+};
+
 export const register = async (data: RegisterPayload) => {
   const response = await API.post('/auth/register', data);
   return response.data;
@@ -30,6 +36,6 @@ export const logout = async () => {
 };
 
 export const getCurrentUser = async () => {
-  const response = await API.get('/auth/current-user', { withCredentials: true });
-  return response.data;
+  const response = await API.get<{user: User}>('/auth/current-user', { withCredentials: true });
+  return response.data.user;
 };

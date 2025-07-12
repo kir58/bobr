@@ -38,8 +38,6 @@ export interface UpdateScenePayload {
 
 
 
-
-
 export const createScene = async (data: CreateScenePayload) => {
   const formData = new FormData();
 
@@ -83,3 +81,12 @@ export const updateScene = async (id: string, data: UpdateScenePayload) => {
 
   return response.data;
 };
+
+export const getScenes = async () => {
+  const response = await API.get<Scene[]>('/scenes');
+  return response.data;
+}
+export const deleteScene = async (id: string) => {
+  const response = await API.delete(`/scenes/${id}`);
+  return response.data;
+}

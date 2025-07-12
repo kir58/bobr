@@ -4,44 +4,27 @@ import { Header } from '../shared/ui';
 import { Container } from '@mui/material';
 import { SignIn } from '../pages/signIn';
 import { SignUp } from '../pages/signUp';
-import { useEffect, useState } from 'react';
-import { getCurrentUser, logout } from '../shared/api/auth.ts';
 import { Scene } from '../pages/scene';
+import { useUser } from '../entities/user/useUser.ts';
+import { User } from '../pages/user';
+
 
 function App() {
-  const [user, setUser] = useState<{ username: string } | null>(null);
-
-  useEffect(() => {
-    const login = async () => {
-      try {
-        const response = await getCurrentUser();
-        setUser(response.user);
-      } catch {
-        setUser(null);
-      }
-    }
-    login();
-  }, []);
-
-  const handleLogout = async () => {
-    await logout();
-    setUser(null);
-  };
+  const { user, logout } = useUser();
 
   return (
-    <div>
-      <Router>
-        <Header user={user} onLogout={handleLogout} />
-        <Container maxWidth="xl">
-          <Routes>
-            <Route path="/" element={<Main />} />
-            <Route path="/sign-in" element={<SignIn onLoginSuccess={setUser} />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/scenes/:scene_id" element={<Scene />} />
-          </Routes>
-        </Container>
-      </Router>
-    </div>
+    <Router>
+      <Header user={user} onLogout={logout} />
+      <Container maxWidth="xl">
+        <Routes>
+          <Route path="/" element={<Main />} />
+          <Route path="/user/:user_id" element={<User />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/scenes/:scene_id" element={<Scene />} />
+        </Routes>
+      </Container>
+    </Router>
   );
 }
 
