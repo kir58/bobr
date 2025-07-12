@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import ReactPlayer from "react-player/lazy";
-import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
-import { getBlobDuration } from "../../lib/getBloblDuration.ts";
+import { useState, useEffect, useRef } from 'react';
+import ReactPlayer from 'react-player/lazy';
+import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
+import { getBlobDuration } from '../../lib/getBloblDuration.ts';
 import { Button, Stack, Snackbar, Alert } from '@mui/material';
-import { Player } from "./Player/Player.tsx";
+import { Player } from './Player/Player.tsx';
 import { createScene } from '../../api/scenes.ts';
 import { Link } from '../Link.tsx';
 
@@ -15,7 +15,11 @@ type PlayersProps = {
   defaultTranscript?: string;
 };
 
-export const Players = ({ videoUrl, defaultAudioUrl = '', defaultStartTimecode = 0, }: PlayersProps) => {
+export const Players = ({
+  videoUrl,
+  defaultAudioUrl = '',
+  defaultStartTimecode = 0,
+}: PlayersProps) => {
   const [isPlay, setIsPlay] = useState(false);
   const [isRecord, setIsRecord] = useState(false);
   const [audioUrl, setAudioUrl] = useState(defaultAudioUrl);
@@ -28,7 +32,6 @@ export const Players = ({ videoUrl, defaultAudioUrl = '', defaultStartTimecode =
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-
 
   useEffect(() => {
     if (!audioUrl) return;
@@ -61,7 +64,7 @@ export const Players = ({ videoUrl, defaultAudioUrl = '', defaultStartTimecode =
     playerRef.current?.seekTo(0);
     setAudioUrl(defaultAudioUrl);
     setVideoSeconds(defaultStartTimecode);
-  }
+  };
 
   const handleStartRecording = () => {
     const start = playerRef.current?.getCurrentTime?.() || 0;
@@ -98,11 +101,9 @@ export const Players = ({ videoUrl, defaultAudioUrl = '', defaultStartTimecode =
         startTimecode: recordStartTime,
         endTimecode: recordStartTime + Math.floor(videoSeconds),
         transcript: '',
-        audioFile: new File(
-          [recorderControls.recordingBlob],
-          'recorded-audio.webm',
-          { type: recorderControls.recordingBlob.type }
-        ),
+        audioFile: new File([recorderControls.recordingBlob], 'recorded-audio.webm', {
+          type: recorderControls.recordingBlob.type,
+        }),
       };
 
       const result = await createScene(formData);
@@ -118,11 +119,7 @@ export const Players = ({ videoUrl, defaultAudioUrl = '', defaultStartTimecode =
     }
   };
 
-
-
-
-
-  const isShowSaveBtn =  !!audioUrl && !sceneId;
+  const isShowSaveBtn = !!audioUrl && !sceneId;
 
   return (
     <Stack gap={2} marginTop={5}>
@@ -154,27 +151,24 @@ export const Players = ({ videoUrl, defaultAudioUrl = '', defaultStartTimecode =
         }}
       />
       <Stack gap={2} direction="row">
-        <Button
-          variant="outlined"
-          color="error"
-          disabled={!audioUrl}
-          onClick={handleReset}
-        >
+        <Button variant="outlined" color="error" disabled={!audioUrl} onClick={handleReset}>
           reset record
         </Button>
         <audio
           controlsList="nodownload"
-          src={audioUrl ?? ""}
+          src={audioUrl ?? ''}
           controls
           onPlay={() => {
             setIsPlay(true);
             playerRef.current?.seekTo(0);
           }}
         />
-        {isShowSaveBtn && <Button onClick={handleSave}>
-          Save
-        </Button>}
-        {sceneId && <Link underline="hover" variant="body2" href={`/scenes/${sceneId}`} >Go to scene</Link>}
+        {isShowSaveBtn && <Button onClick={handleSave}>Save</Button>}
+        {sceneId && (
+          <Button component={Link} variant="outlined" color="primary" href={`/scenes/${sceneId}`}>
+            Go to scene
+          </Button>
+        )}
       </Stack>
       <Snackbar
         open={snackbarOpen}
@@ -182,7 +176,11 @@ export const Players = ({ videoUrl, defaultAudioUrl = '', defaultStartTimecode =
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

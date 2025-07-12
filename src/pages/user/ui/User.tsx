@@ -75,7 +75,7 @@ export const User = () => {
                   <ListItemText
                     primary={
                       <Link to={`/scenes/${scene._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                        {scene.youtubeLink}
+                        {scene.youtubeTitle ? scene.youtubeTitle : scene.youtubeLink}
                       </Link>
                     }
                     secondary={`Таймкод: ${scene.startTimecode}s – ${scene.endTimecode}s`}

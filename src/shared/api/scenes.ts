@@ -4,6 +4,7 @@ export interface Scene {
   _id: string;
   userId: string;
   youtubeLink: string;
+  youtubeTitle: string;
   startTimecode: number;
   endTimecode: number;
   transcript: string;
