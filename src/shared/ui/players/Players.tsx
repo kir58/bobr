@@ -67,13 +67,27 @@ export const Players = ({
   };
 
   const handleStartRecording = () => {
+    if (typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setSnackbarMessage('Запись не поддерживается в этом браузере.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
+    }
+
     const start = playerRef.current?.getCurrentTime?.() || 0;
     setRecordStartTime(start);
 
-    recorderControls.startRecording();
-    setIsPlay(true);
-    setIsRecord(true);
-    playerRef.current?.seekTo(start);
+    try {
+      recorderControls.startRecording();
+      setIsPlay(true);
+      setIsRecord(true);
+      playerRef.current?.seekTo(start);
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      setSnackbarMessage('Не удалось начать запись.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
   };
 
   const handleStopRecording = () => {

@@ -1,5 +1,15 @@
-import  { useState } from 'react';
-import { Box, Typography, Paper, List, ListItem, ListItemText, IconButton, Divider, CircularProgress } from '@mui/material';
+import { useState } from 'react';
+import {
+  Box,
+  Typography,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Divider,
+  CircularProgress,
+} from '@mui/material';
 import { useUser } from '../../../entities/user/useUser.ts';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getScenes, deleteScene, Scene } from '../../../shared/api/scenes.ts';
@@ -37,15 +47,23 @@ export const User = () => {
     return <Typography sx={{ mt: 4, textAlign: 'center' }}>Нет такого</Typography>;
   }
 
-  const userScenes = scenes?.filter(scene => scene.userId === user.id) || [];
+  const userScenes = scenes?.filter((scene) => scene.userId === user.id) || [];
 
   return (
     <Box sx={{ maxWidth: 800, margin: '40px auto' }}>
       <Paper elevation={3} sx={{ padding: 4, mb: 4 }}>
-        <Typography variant="h4" gutterBottom>Профиль пользователя</Typography>
-        <Typography variant="body1"><strong>ID:</strong> {user.id}</Typography>
-        <Typography variant="body1"><strong>Имя пользователя:</strong> {user.username}</Typography>
-        <Typography variant="body1"><strong>Email:</strong> {user.email}</Typography>
+        <Typography variant="h4" gutterBottom>
+          Профиль пользователя
+        </Typography>
+        <Typography variant="body1">
+          <strong>ID:</strong> {user.id}
+        </Typography>
+        <Typography variant="body1">
+          <strong>Имя пользователя:</strong> {user.username}
+        </Typography>
+        <Typography variant="body1">
+          <strong>Email:</strong> {user.email}
+        </Typography>
       </Paper>
 
       <Paper elevation={3} sx={{ padding: 4 }}>
@@ -58,7 +76,7 @@ export const User = () => {
           {userScenes.length === 0 ? (
             <Typography variant="body2">Сцен пока нет.</Typography>
           ) : (
-            userScenes.map(scene => (
+            userScenes.map((scene) => (
               <div key={scene._id}>
                 <ListItem
                   secondaryAction={
@@ -74,7 +92,10 @@ export const User = () => {
                 >
                   <ListItemText
                     primary={
-                      <Link to={`/scenes/${scene._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <Link
+                        to={`/scenes/${scene._id}`}
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                      >
                         {scene.youtubeTitle ? scene.youtubeTitle : scene.youtubeLink}
                       </Link>
                     }
