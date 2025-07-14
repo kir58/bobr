@@ -8,7 +8,6 @@ import { Scene } from '../pages/scene';
 import { useUser } from '../entities/user/useUser.ts';
 import { User } from '../pages/user';
 
-
 function App() {
   const { user, logout } = useUser();
 

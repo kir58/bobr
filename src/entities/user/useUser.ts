@@ -1,11 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { getCurrentUser, LoginPayload, logout as apiLogout, User, login as apiLogin } from '../../shared/api/auth.ts';
+import {
+  getCurrentUser,
+  LoginPayload,
+  logout as apiLogout,
+  User,
+  login as apiLogin,
+} from '../../shared/api/auth.ts';
 import { useUserStore } from './userStore.ts';
 
 export const useUser = () => {
   const { user, setUser } = useUserStore();
-
   const { data, isLoading, refetch } = useQuery<User | null, Error>({
     queryKey: ['currentUser'],
     queryFn: getCurrentUser,
@@ -21,14 +26,12 @@ export const useUser = () => {
 
   const logout = async () => {
     await apiLogout();
-    await refetch(); // This will trigger the query to run again and set user to null
+    setUser(null);
   };
 
   const signIn = async (payload: LoginPayload) => {
-    const response = await apiLogin(payload);
-    setUser(response.user);
+    await apiLogin(payload);
     await refetch(); // Ensure the state is fresh
-    return response.user;
   };
 
   return {

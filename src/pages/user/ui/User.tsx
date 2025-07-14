@@ -14,7 +14,7 @@ import { useUser } from '../../../entities/user/useUser.ts';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getScenes, deleteScene, Scene } from '../../../shared/api/scenes.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 
 export const User = () => {
   const { user, isLoading: isLoadingUser } = useUser();
@@ -44,7 +44,7 @@ export const User = () => {
   }
 
   if (!user) {
-    return <Typography sx={{ mt: 4, textAlign: 'center' }}>Нет такого</Typography>;
+    return <Navigate to={'/'} />;
   }
 
   const userScenes = scenes?.filter((scene) => scene.userId === user.id) || [];

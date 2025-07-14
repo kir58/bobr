@@ -12,7 +12,6 @@ export const Main = () => {
 
   return (
     <Stack gap={2} marginTop={5}>
-      {/* Ввод URL */}
       <Stack gap={2} direction="row" alignItems="center">
         <TextField
           value={searchValue}
@@ -30,22 +29,24 @@ export const Main = () => {
           }}
         />
       </Stack>
-      <Stack direction="row" gap={2} alignItems="stretch">
+      <Stack direction="row" gap={2} alignItems="stretch" flexWrap="wrap">
         <Box flex={1}>
           <Players videoUrl={videoUrl} transcriptText={transcriptText} />
         </Box>
-        <Box flex={1} display="flex" flexDirection="column" borderRadius={3}>
-          <TextField
-            value={transcriptText}
-            onChange={(e) => setTranscriptText(e.target.value)}
-            label="Ener transcript"
-            placeholder="Напишите текст о горизонтальной квир комуне"
-            fullWidth
-            multiline
-            rows={10}
-            variant="outlined"
-          />
-        </Box>
+        {videoUrl && (
+          <Box flex={1} display="flex" flexDirection="column" borderRadius={3}>
+            <TextField
+              value={transcriptText}
+              onChange={(e) => setTranscriptText(e.target.value)}
+              label="Ener transcript"
+              placeholder="Напишите текст о горизонтальной квир комуне"
+              fullWidth
+              multiline
+              rows={10}
+              variant="outlined"
+            />
+          </Box>
+        )}
       </Stack>
     </Stack>
   );

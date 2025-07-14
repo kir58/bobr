@@ -44,8 +44,15 @@ export const ScenePlayer = ({ scene }: Props) => {
 
   return (
     <Box sx={{ margin: 'auto', marginTop: 2 }}>
-      <Box sx={{ display: 'flex', gap: 3, alignItems: 'stretch' }}>
-        <Box sx={{ flex: '2 1 0%', minWidth: 0 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: 3,
+          alignItems: 'stretch',
+        }}
+      >
+        <Box sx={{ flex: 2, minWidth: 0 }}>
           <Player
             ref={playerRef}
             url={scene.youtubeLink}
@@ -56,23 +63,25 @@ export const ScenePlayer = ({ scene }: Props) => {
             width="100%"
           />
         </Box>
-        <TextField
-          value={scene.transcript}
-          disabled
-          label="Тбилиский модник"
-          placeholder="Здесь может быть транскрипт"
-          fullWidth
-          multiline
-          rows={16}
-          variant="outlined"
-          sx={{
-            width: 450,
-            '& textarea': {
-              resize: 'both',
-              overflow: 'auto',
-            },
-          }}
-        />
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <TextField
+            value={scene.transcript}
+            disabled
+            label="Тбилиский модник"
+            placeholder="Здесь может быть транскрипт"
+            fullWidth
+            multiline
+            variant="outlined"
+            sx={{
+              height: '100%',
+              '& textarea': {
+                resize: 'both',
+                overflow: 'auto',
+                minHeight: 150,
+              },
+            }}
+          />
+        </Box>
       </Box>
 
       {audioUrl && (
