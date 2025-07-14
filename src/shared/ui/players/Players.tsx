@@ -9,21 +9,14 @@ import { Link } from '../Link.tsx';
 
 type PlayersProps = {
   videoUrl?: string;
-  defaultAudioUrl?: string;
-  defaultStartTimecode?: number;
-  defaultEndTimecode?: number;
-  defaultTranscript?: string;
+  transcriptText?: string;
 };
 
-export const Players = ({
-  videoUrl,
-  defaultAudioUrl = '',
-  defaultStartTimecode = 0,
-}: PlayersProps) => {
+export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   const [isPlay, setIsPlay] = useState(false);
   const [isRecord, setIsRecord] = useState(false);
-  const [audioUrl, setAudioUrl] = useState(defaultAudioUrl);
-  const [videoSeconds, setVideoSeconds] = useState(defaultStartTimecode);
+  const [audioUrl, setAudioUrl] = useState('');
+  const [videoSeconds, setVideoSeconds] = useState(0);
   const [sceneId, setSceneId] = useState<string | null>(null);
   const [recordStartTime, setRecordStartTime] = useState<number | null>(null);
 
@@ -39,11 +32,11 @@ export const Players = ({
       getBlobDuration(audioUrl).then((duration) => {
         if (videoSeconds >= duration) {
           setIsPlay(false);
-          setVideoSeconds(defaultStartTimecode);
+          setVideoSeconds(videoSeconds);
         }
       });
     }
-  }, [isPlay, audioUrl, videoSeconds, defaultStartTimecode]);
+  }, [isPlay, audioUrl, videoSeconds]);
 
   const recorderControls = useAudioRecorder({ echoCancellation: false });
 
@@ -62,8 +55,9 @@ export const Players = ({
     setIsRecord(false);
     setRecordStartTime(null);
     playerRef.current?.seekTo(0);
-    setAudioUrl(defaultAudioUrl);
-    setVideoSeconds(defaultStartTimecode);
+    setAudioUrl('');
+    setVideoSeconds(0);
+    setSceneId(null);
   };
 
   const handleStartRecording = () => {
@@ -114,7 +108,7 @@ export const Players = ({
         youtubeLink: videoUrl ?? '',
         startTimecode: recordStartTime,
         endTimecode: recordStartTime + Math.floor(videoSeconds),
-        transcript: '',
+        transcript: transcriptText,
         audioFile: new File([recorderControls.recordingBlob], 'recorded-audio.webm', {
           type: recorderControls.recordingBlob.type,
         }),
@@ -136,7 +130,7 @@ export const Players = ({
   const isShowSaveBtn = !!audioUrl && !sceneId;
 
   return (
-    <Stack gap={2} marginTop={5}>
+    <Stack gap={2}>
       <Stack
         sx={{
           maxWidth: 800,

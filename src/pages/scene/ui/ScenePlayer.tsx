@@ -2,13 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { Scene } from '../../../shared/api/scenes.ts';
 import { Player } from '../../../shared/ui/players/Player/Player.tsx';
 import ReactPlayer from 'react-player/lazy';
-import { Box } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 
 type Props = {
-  scene: Scene
+  scene: Scene;
 };
 
-function createAudioUrlFromBuffer(buffer: { type: string; data: number[] }, mimeType: string): string {
+function createAudioUrlFromBuffer(
+  buffer: { type: string; data: number[] },
+  mimeType: string,
+): string {
   const uint8Array = new Uint8Array(buffer.data);
   const blob = new Blob([uint8Array], { type: mimeType });
   return URL.createObjectURL(blob);
@@ -40,27 +43,41 @@ export const ScenePlayer = ({ scene }: Props) => {
   };
 
   return (
-    <Box sx={{ maxWidth: 700, margin: 'auto',  marginTop: 2 }}>
-      <Box >
-        <Player
-          ref={playerRef}
-          url={scene.youtubeLink}
-          controls
-          muted
-          playing={isVideoPlaying}
-          onProgress={handleVideoProgress}
-          width="100%"
-          height="270px"
+    <Box sx={{ margin: 'auto', marginTop: 2 }}>
+      <Box sx={{ display: 'flex', gap: 3, alignItems: 'stretch' }}>
+        <Box sx={{ flex: '2 1 0%', minWidth: 0 }}>
+          <Player
+            ref={playerRef}
+            url={scene.youtubeLink}
+            controls
+            muted
+            playing={isVideoPlaying}
+            onProgress={handleVideoProgress}
+            width="100%"
+          />
+        </Box>
+        <TextField
+          value={scene.transcript}
+          disabled
+          label="Тбилиский модник"
+          placeholder="Здесь может быть транскрипт"
+          fullWidth
+          multiline
+          rows={16}
+          variant="outlined"
+          sx={{
+            width: 450,
+            '& textarea': {
+              resize: 'both',
+              overflow: 'auto',
+            },
+          }}
         />
       </Box>
 
       {audioUrl && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2  } }>
-          <audio
-            controls
-            src={audioUrl}
-            onPlay={handleAudioPlay}
-          />
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+          <audio controls src={audioUrl} onPlay={handleAudioPlay} />
         </Box>
       )}
     </Box>

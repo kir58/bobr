@@ -37,13 +37,12 @@ export interface UpdateScenePayload {
   clearAudio?: boolean;
 }
 
-
-
 export const createScene = async (data: CreateScenePayload) => {
   const formData = new FormData();
 
   formData.append('youtubeLink', data.youtubeLink);
-  if (data.startTimecode !== undefined) formData.append('startTimecode', data.startTimecode.toString());
+  if (data.startTimecode !== undefined)
+    formData.append('startTimecode', data.startTimecode.toString());
   if (data.endTimecode !== undefined) formData.append('endTimecode', data.endTimecode.toString());
   if (data.transcript) formData.append('transcript', data.transcript);
   if (data.audioFile) formData.append('audioFile', data.audioFile);
@@ -54,9 +53,8 @@ export const createScene = async (data: CreateScenePayload) => {
     },
   });
 
-  return response.data as { message: "Scene created successfully", sceneId: string};
+  return response.data as { message: 'Scene created successfully'; sceneId: string };
 };
-
 
 export const getSceneById = async (id: string) => {
   const response = await API.get(`/scenes/${id}`);
@@ -67,7 +65,8 @@ export const updateScene = async (id: string, data: UpdateScenePayload) => {
   const formData = new FormData();
 
   if (data.youtubeLink !== undefined) formData.append('youtubeLink', data.youtubeLink);
-  if (data.startTimecode !== undefined) formData.append('startTimecode', data.startTimecode.toString());
+  if (data.startTimecode !== undefined)
+    formData.append('startTimecode', data.startTimecode.toString());
   if (data.endTimecode !== undefined) formData.append('endTimecode', data.endTimecode.toString());
   if (data.transcript !== undefined) formData.append('transcript', data.transcript);
   if (data.isPublic !== undefined) formData.append('isPublic', data.isPublic.toString());
@@ -86,8 +85,8 @@ export const updateScene = async (id: string, data: UpdateScenePayload) => {
 export const getScenes = async () => {
   const response = await API.get<Scene[]>('/scenes');
   return response.data;
-}
+};
 export const deleteScene = async (id: string) => {
   const response = await API.delete(`/scenes/${id}`);
   return response.data;
-}
+};
