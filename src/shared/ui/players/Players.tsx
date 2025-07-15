@@ -5,7 +5,8 @@ import { Button, Stack, Snackbar, Alert } from '@mui/material';
 import { Player } from './Player/Player.tsx';
 import { createScene } from '../../api/scenes.ts';
 import { Link } from '../Link.tsx';
-import { CustomAudioPlayer } from './CustomAudioPlayer.tsx';
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 type PlayersProps = {
   videoUrl?: string;
@@ -185,9 +186,13 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
       )}
       <Stack gap={2} direction="row">
         {audioUrl && (
-          <CustomAudioPlayer
+          <AudioPlayer
             src={audioUrl}
-            playing={isPlay}
+            autoPlay={false}
+            showJumpControls={false}
+            customAdditionalControls={[]}
+            customVolumeControls={[]}
+            layout="horizontal-reverse"
             onPlay={() => {
               setIsPlay(true);
               if (recordStartTime !== null) {
@@ -195,6 +200,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
               }
             }}
             onPause={() => setIsPlay(false)}
+            style={{ maxWidth: 600 }}
           />
         )}
         {isShowSaveBtn && <Button onClick={handleSave}>Save</Button>}
