@@ -33,7 +33,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
       getBlobDuration(audioUrl).then((duration) => {
         if (videoSeconds >= duration) {
           setIsPlay(false);
-          setVideoSeconds(videoSeconds);
+          setVideoSeconds(0);
         }
       });
     }
