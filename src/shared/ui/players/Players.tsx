@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player/lazy';
 import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
-import { getBlobDuration } from '../../lib/getBloblDuration.ts';
 import { Button, Stack, Snackbar, Alert } from '@mui/material';
 import { Player } from './Player/Player.tsx';
 import { createScene } from '../../api/scenes.ts';
@@ -16,7 +15,6 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   const [isPlay, setIsPlay] = useState(false);
   const [isRecord, setIsRecord] = useState(false);
   const [audioUrl, setAudioUrl] = useState('');
-  const [videoSeconds, setVideoSeconds] = useState(0);
   const [sceneId, setSceneId] = useState<string | null>(null);
   const [recordStartTime, setRecordStartTime] = useState<number | null>(null);
   const [recordEndTime, setRecordEndTime] = useState<number | null>(null);
@@ -28,16 +26,18 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
   useEffect(() => {
-    if (!audioUrl) return;
-    if (isPlay) {
-      getBlobDuration(audioUrl).then((duration) => {
-        if (videoSeconds >= duration) {
-          setIsPlay(false);
-          setVideoSeconds(0);
-        }
-      });
-    }
-  }, [isPlay, audioUrl, videoSeconds]);
+    if (!audioUrl || !isPlay || recordEndTime === null) return;
+
+    const interval = setInterval(() => {
+      const current = playerRef.current?.getCurrentTime?.() || 0;
+      if (current >= recordEndTime) {
+        setIsPlay(false);
+        clearInterval(interval);
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [isPlay, audioUrl, recordEndTime]);
 
   const recorderControls = useAudioRecorder({ echoCancellation: false });
 
@@ -58,11 +58,10 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
     setRecordEndTime(null);
     playerRef.current?.seekTo(0);
     setAudioUrl('');
-    setVideoSeconds(0);
     setSceneId(null);
   };
 
-  const handleStartRecording = () => {
+  const handleStartRecording = async () => {
     if (typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
       setSnackbarMessage('Запись не поддерживается в этом браузере.');
       setSnackbarSeverity('error');
@@ -72,25 +71,28 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
 
     const start = playerRef.current?.getCurrentTime?.() || 0;
     setRecordStartTime(start);
+    setIsRecord(true);
+    setIsPlay(true);
 
-    try {
-      recorderControls.startRecording();
-      setIsPlay(true);
-      setIsRecord(true);
-      playerRef.current?.seekTo(start);
-    } catch (error) {
-      console.error('Error starting recording:', error);
-      setSnackbarMessage('Не удалось начать запись.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    }
+    playerRef.current?.seekTo(start);
+
+    // Ждем немного, чтобы видео успело начать воспроизведение
+    setTimeout(() => {
+      try {
+        recorderControls.startRecording();
+      } catch (error) {
+        console.error('Error starting recording:', error);
+        setSnackbarMessage('Не удалось начать запись.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      }
+    }, 200);
   };
 
   const handleStopRecording = () => {
     recorderControls.stopRecording();
-    if (recordStartTime !== null) {
-      setRecordEndTime(recordStartTime + Math.floor(videoSeconds));
-    }
+    const end = playerRef.current?.getCurrentTime?.() ?? 0;
+    setRecordEndTime(end);
 
     setIsPlay(false);
     setIsRecord(false);
@@ -149,9 +151,6 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
           playing={isPlay}
           onPause={() => setIsPlay(false)}
           onPlay={() => setIsPlay(true)}
-          onProgress={(proggress) => {
-            setVideoSeconds(proggress.playedSeconds);
-          }}
         />
       </Stack>
       <AudioRecorder
@@ -173,7 +172,12 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
           controls
           onPlay={() => {
             setIsPlay(true);
-            playerRef.current?.seekTo(0);
+            if (recordStartTime !== null) {
+              playerRef.current?.seekTo(recordStartTime);
+            }
+          }}
+          onPause={() => {
+            setIsPlay(false);
           }}
         />
         {isShowSaveBtn && <Button onClick={handleSave}>Save</Button>}
