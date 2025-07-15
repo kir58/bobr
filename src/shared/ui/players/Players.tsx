@@ -5,6 +5,7 @@ import { Button, Stack, Snackbar, Alert } from '@mui/material';
 import { Player } from './Player/Player.tsx';
 import { createScene } from '../../api/scenes.ts';
 import { Link } from '../Link.tsx';
+import { CustomAudioPlayer } from './CustomAudioPlayer.tsx';
 
 type PlayersProps = {
   videoUrl?: string;
@@ -20,6 +21,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   const [recordEndTime, setRecordEndTime] = useState<number | null>(null);
 
   const playerRef = useRef<ReactPlayer | null>(null);
+  const canAcceptAudioRef = useRef(true);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -46,19 +48,30 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   }
 
   const addAudioElement = (blob: Blob) => {
+    if (!canAcceptAudioRef.current) {
+      console.log('⛔ Blob rejected — reset is active');
+      return;
+    }
+
     const url = URL.createObjectURL(blob);
     setAudioUrl(url);
     playerRef.current?.seekTo(0);
   };
 
   const handleReset = () => {
+    canAcceptAudioRef.current = false; // блокируем при reset
     setIsPlay(false);
     setIsRecord(false);
     setRecordStartTime(null);
     setRecordEndTime(null);
-    playerRef.current?.seekTo(0);
     setAudioUrl('');
     setSceneId(null);
+    playerRef.current?.seekTo(0);
+
+    // позволяем запись снова после небольшого "тишины"
+    setTimeout(() => {
+      canAcceptAudioRef.current = true;
+    }, 100);
   };
 
   const handleStartRecording = async () => {
@@ -136,6 +149,8 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
 
   const isShowSaveBtn = !!audioUrl && !sceneId;
 
+  console.log('audioUrl', audioUrl);
+
   return (
     <Stack gap={2}>
       <Stack
@@ -153,33 +168,35 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
           onPlay={() => setIsPlay(true)}
         />
       </Stack>
-      <AudioRecorder
-        onRecordingComplete={(blob) => addAudioElement(blob)}
-        recorderControls={{
-          ...recorderControls,
-          startRecording: handleStartRecording,
-          stopRecording: handleStopRecording,
-          togglePauseResume: handleTogglePauseResume,
-        }}
-      />
-      <Stack gap={2} direction="row">
+      {!audioUrl ? (
+        <AudioRecorder
+          onRecordingComplete={addAudioElement}
+          recorderControls={{
+            ...recorderControls,
+            startRecording: handleStartRecording,
+            stopRecording: handleStopRecording,
+            togglePauseResume: handleTogglePauseResume,
+          }}
+        />
+      ) : (
         <Button variant="outlined" color="error" disabled={!audioUrl} onClick={handleReset}>
           reset record
         </Button>
-        <audio
-          controlsList="nodownload"
-          src={audioUrl ?? ''}
-          controls
-          onPlay={() => {
-            setIsPlay(true);
-            if (recordStartTime !== null) {
-              playerRef.current?.seekTo(recordStartTime);
-            }
-          }}
-          onPause={() => {
-            setIsPlay(false);
-          }}
-        />
+      )}
+      <Stack gap={2} direction="row">
+        {audioUrl && (
+          <CustomAudioPlayer
+            src={audioUrl}
+            playing={isPlay}
+            onPlay={() => {
+              setIsPlay(true);
+              if (recordStartTime !== null) {
+                playerRef.current?.seekTo(recordStartTime);
+              }
+            }}
+            onPause={() => setIsPlay(false)}
+          />
+        )}
         {isShowSaveBtn && <Button onClick={handleSave}>Save</Button>}
         {sceneId && (
           <Button component={Link} variant="outlined" color="primary" href={`/scenes/${sceneId}`}>
