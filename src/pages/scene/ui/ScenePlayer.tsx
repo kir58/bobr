@@ -3,6 +3,7 @@ import { Scene } from '../../../shared/api/scenes.ts';
 import { Player } from '../../../shared/ui/players/Player/Player.tsx';
 import ReactPlayer from 'react-player/lazy';
 import { Box, TextField } from '@mui/material';
+import AudioPlayer from 'react-h5-audio-player';
 
 type Props = {
   scene: Scene;
@@ -86,7 +87,7 @@ export const ScenePlayer = ({ scene }: Props) => {
 
       {audioUrl && (
         <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
-          <audio controls src={audioUrl} onPlay={handleAudioPlay} />
+          <AudioPlayer showJumpControls={false} src={audioUrl} onPlay={handleAudioPlay} />
         </Box>
       )}
     </Box>
