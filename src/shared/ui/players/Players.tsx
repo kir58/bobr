@@ -19,6 +19,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   const [videoSeconds, setVideoSeconds] = useState(0);
   const [sceneId, setSceneId] = useState<string | null>(null);
   const [recordStartTime, setRecordStartTime] = useState<number | null>(null);
+  const [recordEndTime, setRecordEndTime] = useState<number | null>(null);
 
   const playerRef = useRef<ReactPlayer | null>(null);
 
@@ -54,6 +55,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
     setIsPlay(false);
     setIsRecord(false);
     setRecordStartTime(null);
+    setRecordEndTime(null);
     playerRef.current?.seekTo(0);
     setAudioUrl('');
     setVideoSeconds(0);
@@ -86,6 +88,10 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
 
   const handleStopRecording = () => {
     recorderControls.stopRecording();
+    if (recordStartTime !== null) {
+      setRecordEndTime(recordStartTime + Math.floor(videoSeconds));
+    }
+
     setIsPlay(false);
     setIsRecord(false);
   };
@@ -94,9 +100,8 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
     recorderControls.togglePauseResume();
     setIsPlay(recorderControls.isPaused);
   };
-
   const handleSave = async () => {
-    if (!recorderControls.recordingBlob || recordStartTime === null) {
+    if (!recorderControls.recordingBlob || recordStartTime === null || recordEndTime === null) {
       setSnackbarMessage('Нет записи или начального таймкода.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -107,7 +112,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
       const formData = {
         youtubeLink: videoUrl ?? '',
         startTimecode: recordStartTime,
-        endTimecode: recordStartTime + Math.floor(videoSeconds),
+        endTimecode: recordEndTime,
         transcript: transcriptText,
         audioFile: new File([recorderControls.recordingBlob], 'recorded-audio.webm', {
           type: recorderControls.recordingBlob.type,
