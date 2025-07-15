@@ -29,11 +29,12 @@ export const Main = () => {
           }}
         />
       </Stack>
-      <Stack direction={{ xs: 'column', sm: 'row' }} gap={2} alignItems="stretch">
-        <Box flex={1}>
-          <Players videoUrl={videoUrl} transcriptText={transcriptText} />
-        </Box>
-        {videoUrl && (
+      {videoUrl && (
+        <Stack direction={{ xs: 'column', sm: 'row' }} gap={2} alignItems="stretch">
+          <Box flex={1}>
+            <Players videoUrl={videoUrl} transcriptText={transcriptText} />
+          </Box>
+
           <Box flex={1} display="flex" flexDirection="column" borderRadius={3}>
             <TextField
               value={transcriptText}
@@ -46,8 +47,8 @@ export const Main = () => {
               variant="outlined"
             />
           </Box>
-        )}
-      </Stack>
+        </Stack>
+      )}
     </Stack>
   );
 };

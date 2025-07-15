@@ -9,7 +9,7 @@ import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 
 type PlayersProps = {
-  videoUrl?: string;
+  videoUrl: string;
   transcriptText?: string;
 };
 
@@ -27,7 +27,9 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-
+  useEffect(() => {
+    handleReset();
+  }, [videoUrl]);
   useEffect(() => {
     if (!audioUrl || !isPlay || recordEndTime === null) return;
 
@@ -43,10 +45,6 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   }, [isPlay, audioUrl, recordEndTime]);
 
   const recorderControls = useAudioRecorder({ echoCancellation: false });
-
-  if (!videoUrl) {
-    return null;
-  }
 
   const addAudioElement = (blob: Blob) => {
     if (!canAcceptAudioRef.current) {
