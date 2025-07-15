@@ -60,7 +60,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   };
 
   const handleReset = () => {
-    canAcceptAudioRef.current = false; // блокируем при reset
+    canAcceptAudioRef.current = false;
     setIsPlay(false);
     setIsRecord(false);
     setRecordStartTime(null);
@@ -69,7 +69,6 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
     setSceneId(null);
     playerRef.current?.seekTo(0);
 
-    // позволяем запись снова после небольшого "тишины"
     setTimeout(() => {
       canAcceptAudioRef.current = true;
     }, 100);
@@ -90,7 +89,6 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
 
     playerRef.current?.seekTo(start);
 
-    // Ждем немного, чтобы видео успело начать воспроизведение
     setTimeout(() => {
       try {
         recorderControls.startRecording();
@@ -149,8 +147,6 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   };
 
   const isShowSaveBtn = !!audioUrl && !sceneId;
-
-  console.log('audioUrl', audioUrl);
 
   return (
     <Stack gap={2}>
