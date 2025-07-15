@@ -29,7 +29,7 @@ export const Main = () => {
           }}
         />
       </Stack>
-      <Stack direction="row" gap={2} alignItems="stretch" flexWrap="wrap">
+      <Stack direction={{ xs: 'column', sm: 'row' }} gap={2} alignItems="stretch">
         <Box flex={1}>
           <Players videoUrl={videoUrl} transcriptText={transcriptText} />
         </Box>
