@@ -4,6 +4,7 @@ import { Player } from '../../../shared/ui/players/Player/Player.tsx';
 import ReactPlayer from 'react-player/lazy';
 import { Box, TextField } from '@mui/material';
 import AudioPlayer from 'react-h5-audio-player';
+import H5AudioPlayer from 'react-h5-audio-player';
 
 type Props = {
   scene: Scene;
@@ -20,6 +21,7 @@ function createAudioUrlFromBuffer(
 
 export const ScenePlayer = ({ scene }: Props) => {
   const playerRef = useRef<ReactPlayer | null>(null);
+  const audioRef = useRef<H5AudioPlayer | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
@@ -31,8 +33,9 @@ export const ScenePlayer = ({ scene }: Props) => {
   }, [scene.audioData, scene.audioMimeType]);
 
   const handleAudioPlay = () => {
-    if (playerRef.current) {
-      playerRef.current.seekTo(scene.startTimecode, 'seconds');
+    if (playerRef.current && audioRef.current) {
+      const currentTime = audioRef.current.audio.current?.currentTime ?? 0;
+      playerRef.current.seekTo(currentTime, 'seconds');
       setIsVideoPlaying(true);
     }
   };
@@ -42,6 +45,23 @@ export const ScenePlayer = ({ scene }: Props) => {
       setIsVideoPlaying(false);
     }
   };
+
+  // Sync video time with audio
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (audioRef.current && playerRef.current) {
+        const audioTime = audioRef.current.audio.current?.currentTime ?? 0;
+        const videoTime = playerRef.current.getCurrentTime();
+        const diff = Math.abs(videoTime - audioTime);
+
+        if (diff > 0.3) {
+          playerRef.current.seekTo(audioTime, 'seconds');
+        }
+      }
+    }, 500); // check twice a second
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Box sx={{ margin: 'auto', marginTop: 2 }}>
@@ -87,7 +107,12 @@ export const ScenePlayer = ({ scene }: Props) => {
 
       {audioUrl && (
         <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
-          <AudioPlayer showJumpControls={false} src={audioUrl} onPlay={handleAudioPlay} />
+          <AudioPlayer
+            ref={audioRef}
+            showJumpControls={false}
+            src={audioUrl}
+            onPlay={handleAudioPlay}
+          />
         </Box>
       )}
     </Box>
