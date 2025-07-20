@@ -58,7 +58,7 @@ export const ScenePlayer = ({ scene }: Props) => {
           playerRef.current.seekTo(audioTime, 'seconds');
         }
       }
-    }, 500); // check twice a second
+    }, 500);
 
     return () => clearInterval(interval);
   }, []);

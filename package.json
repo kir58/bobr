@@ -20,9 +20,9 @@
     "axios": "^1.10.0",
     "prettier": "^3.6.2",
     "react": "^18.2.0",
-    "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "^18.2.0",
     "react-h5-audio-player": "^3.10.0",
+    "react-media-recorder": "^1.7.1",
     "react-player": "^2.13.0",
     "react-router-dom": "^6.16.0",
     "zustand": "^5.0.6"

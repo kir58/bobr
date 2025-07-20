@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player/lazy';
-import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
 import { Button, Stack, Snackbar, Alert } from '@mui/material';
-import { Player } from './Player/Player.tsx';
-import { createScene } from '../../api/scenes.ts';
-import { Link } from '../Link.tsx';
+import { Player } from './Player/Player';
+import { createScene } from '../../api/scenes';
+import { Link } from '../Link';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
-import H5AudioPlayer from 'react-h5-audio-player';
+import { AudioControls } from './AudioControls';
 
 type PlayersProps = {
   videoUrl: string;
@@ -22,15 +21,26 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
   const [recordStartTime, setRecordStartTime] = useState<number | null>(null);
   const [recordEndTime, setRecordEndTime] = useState<number | null>(null);
 
-  const audioRef = useRef<H5AudioPlayer | null>(null);
+  const audioRef = useRef<AudioPlayer | null>(null);
+  const playerRef = useRef<ReactPlayer | null>(null);
   const syncLockRef = useRef<'audio' | 'video' | null>(null);
+  const canAcceptAudioRef = useRef(true);
+  const recordingBlobRef = useRef<Blob | null>(null);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
   const setSyncLock = (source: 'audio' | 'video') => {
     syncLockRef.current = source;
     setTimeout(() => {
       syncLockRef.current = null;
-    }, 500); // 0.5s lock
+    }, 500);
   };
+
+  useEffect(() => {
+    handleReset();
+  }, [videoUrl]);
 
   useEffect(() => {
     if (!audioUrl) return;
@@ -51,17 +61,6 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
     return () => clearInterval(interval);
   }, [audioUrl]);
 
-  const playerRef = useRef<ReactPlayer | null>(null);
-  const canAcceptAudioRef = useRef(true);
-
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-
-  useEffect(() => {
-    handleReset();
-  }, [videoUrl]);
-
   useEffect(() => {
     if (!audioUrl || !isPlay || recordEndTime === null) return;
 
@@ -76,19 +75,6 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
     return () => clearInterval(interval);
   }, [isPlay, audioUrl, recordEndTime]);
 
-  const recorderControls = useAudioRecorder({ echoCancellation: false });
-
-  const addAudioElement = (blob: Blob) => {
-    if (!canAcceptAudioRef.current) {
-      console.log('⛔ Blob rejected — reset is active');
-      return;
-    }
-
-    const url = URL.createObjectURL(blob);
-    setAudioUrl(url);
-    playerRef.current?.seekTo(0);
-  };
-
   const handleReset = () => {
     canAcceptAudioRef.current = false;
     setIsPlay(false);
@@ -97,6 +83,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
     setRecordEndTime(null);
     setAudioUrl('');
     setSceneId(null);
+    recordingBlobRef.current = null;
     playerRef.current?.seekTo(0);
 
     setTimeout(() => {
@@ -104,48 +91,8 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
     }, 100);
   };
 
-  const handleStartRecording = async () => {
-    if (typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
-      setSnackbarMessage('Запись не поддерживается в этом браузере.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      return;
-    }
-
-    const start = playerRef.current?.getCurrentTime?.() || 0;
-    setRecordStartTime(start);
-    setIsRecord(true);
-    setIsPlay(true);
-
-    playerRef.current?.seekTo(start);
-
-    setTimeout(() => {
-      try {
-        recorderControls.startRecording();
-      } catch (error) {
-        console.error('Error starting recording:', error);
-        setSnackbarMessage('Не удалось начать запись.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
-      }
-    }, 200);
-  };
-
-  const handleStopRecording = () => {
-    recorderControls.stopRecording();
-    const end = playerRef.current?.getCurrentTime?.() ?? 0;
-    setRecordEndTime(end);
-
-    setIsPlay(false);
-    setIsRecord(false);
-  };
-
-  const handleTogglePauseResume = () => {
-    recorderControls.togglePauseResume();
-    setIsPlay(recorderControls.isPaused);
-  };
   const handleSave = async () => {
-    if (!recorderControls.recordingBlob || recordStartTime === null || recordEndTime === null) {
+    if (!recordingBlobRef.current || recordStartTime === null || recordEndTime === null) {
       setSnackbarMessage('Нет записи или начального таймкода.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -158,8 +105,8 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
         startTimecode: recordStartTime,
         endTimecode: recordEndTime,
         transcript: transcriptText,
-        audioFile: new File([recorderControls.recordingBlob], 'recorded-audio.webm', {
-          type: recorderControls.recordingBlob.type,
+        audioFile: new File([recordingBlobRef.current], 'recorded-audio.webm', {
+          type: recordingBlobRef.current.type,
         }),
       };
 
@@ -180,11 +127,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
 
   return (
     <Stack gap={2}>
-      <Stack
-        sx={{
-          maxWidth: 800,
-        }}
-      >
+      <Stack sx={{ maxWidth: 800 }}>
         <Player
           controls
           ref={playerRef}
@@ -196,13 +139,19 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
         />
       </Stack>
       {!audioUrl ? (
-        <AudioRecorder
-          onRecordingComplete={addAudioElement}
-          recorderControls={{
-            ...recorderControls,
-            startRecording: handleStartRecording,
-            stopRecording: handleStopRecording,
-            togglePauseResume: handleTogglePauseResume,
+        <AudioControls
+          isRecording={isRecord}
+          setIsRecording={setIsRecord}
+          setIsPlaying={setIsPlay}
+          getCurrentTime={() => playerRef.current?.getCurrentTime?.() || 0}
+          seekTo={(t) => playerRef.current?.seekTo(t)}
+          onStart={(start) => setRecordStartTime(start)}
+          onStop={(end, blob, blobUrl) => {
+            if (!canAcceptAudioRef.current) return;
+            setAudioUrl(blobUrl);
+            setRecordEndTime(end);
+            recordingBlobRef.current = blob;
+            playerRef.current?.seekTo(0);
           }}
         />
       ) : (
@@ -210,6 +159,7 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
           reset record
         </Button>
       )}
+
       <Stack gap={2} direction="row">
         {audioUrl && (
           <AudioPlayer
@@ -231,13 +181,20 @@ export const Players = ({ videoUrl, transcriptText }: PlayersProps) => {
             style={{ maxWidth: 600 }}
           />
         )}
-        {isShowSaveBtn && <Button onClick={handleSave}>Save</Button>}
+
+        {isShowSaveBtn && (
+          <Button variant="contained" onClick={handleSave}>
+            Save
+          </Button>
+        )}
+
         {sceneId && (
           <Button component={Link} variant="outlined" color="primary" href={`/scenes/${sceneId}`}>
             Go to scene
           </Button>
         )}
       </Stack>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}
